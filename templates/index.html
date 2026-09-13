@@ -1,54 +1,102 @@
-{% extends 'base.html' %}
-{% block title %} Home - MyTodo {% endblock title %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>TaskFlow - Project Manager</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+      body { background-color: #f4f6f9; }
+      .navbar-brand { font-weight: 700; letter-spacing: 0.5px; }
+      .card { border-radius: 12px; }
+    </style>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4">
+      <div class="container">
+        <a class="navbar-brand" href="/">⚡ TaskFlow Workspace</a>
+      </div>
+    </nav>
 
-{% block body %}
-<div class="container my-4">
-  <h2>Add a Todo</h2>
-  <form action="/" method="POST">
-    <div class="mb-3">
-      <label for="title" class="form-label">Todo Title</label>
-      <input type="text" class="form-control" name="title" id="title" required>
-    </div>
-    <div class="mb-3">
-      <label for="desc" class="form-label">Todo Description</label>
-      <input type="text" class="form-control" name="desc" id="desc" required>
-    </div>
-    <button type="submit" class="btn btn-dark">Submit</button>
-  </form>
-</div>
+    <div class="container my-4">
+      <div class="row">
+        <!-- Add Task Form -->
+        <div class="col-lg-4 mb-4">
+          <div class="card shadow-sm border-0 p-4">
+            <h5 class="fw-bold mb-3 text-primary">Create New Task</h5>
+            <form action="/" method="POST">
+              <div class="mb-3">
+                <label for="title" class="form-label fw-semibold">Task Title</label>
+                <input type="text" class="form-control" name="title" id="title" placeholder="e.g., Prepare report" required>
+              </div>
+              <div class="mb-3">
+                <label for="desc" class="form-label fw-semibold">Description</label>
+                <textarea class="form-control" name="desc" id="desc" rows="3" placeholder="Add key details..." required></textarea>
+              </div>
+              <div class="mb-3">
+                <label for="priority" class="form-label fw-semibold">Priority Level</label>
+                <select class="form-select" name="priority" id="priority">
+                  <option value="Low">Low</option>
+                  <option value="Medium" selected>Medium</option>
+                  <option value="High">High</option>
+                </select>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 fw-semibold">Add to Board</button>
+            </form>
+          </div>
+        </div>
 
-<div class="container my-4">
-  <h2>Your Todos</h2>
-  {% if allTodo|length == 0 %}
-    <div class="alert alert-secondary" role="alert">
-      No Todos found. Add your first todo above!
+        <!-- Task Table -->
+        <div class="col-lg-8">
+          <div class="card shadow-sm border-0 p-4">
+            <h5 class="fw-bold mb-3">Task Overview</h5>
+            {% if all_tasks|length == 0 %}
+              <div class="alert alert-light border text-secondary" role="alert">
+                No active tasks found. Log your first objective using the form on the left.
+              </div>
+            {% else %}
+              <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                  <thead class="table-light">
+                    <tr>
+                      <th scope="col">#</th>
+                      <th scope="col">Title</th>
+                      <th scope="col">Description</th>
+                      <th scope="col">Priority</th>
+                      <th scope="col">Date</th>
+                      <th scope="col">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for task in all_tasks %}
+                    <tr>
+                      <th scope="row">{{ loop.index }}</th>
+                      <td class="fw-semibold">{{ task.title }}</td>
+                      <td class="text-muted">{{ task.desc }}</td>
+                      <td>
+                        {% if task.priority == 'High' %}
+                          <span class="badge bg-danger">High</span>
+                        {% elif task.priority == 'Medium' %}
+                          <span class="badge bg-warning text-dark">Medium</span>
+                        {% else %}
+                          <span class="badge bg-secondary">Low</span>
+                        {% endif %}
+                      </td>
+                      <td class="small text-muted">{{ task.date_created.strftime('%b %d, %Y') }}</td>
+                      <td>
+                        <a href="/update/{{ task.sno }}" class="btn btn-outline-secondary btn-sm me-1">Edit</a>
+                        <a href="/delete/{{ task.sno }}" class="btn btn-outline-danger btn-sm">Delete</a>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
     </div>
-  {% else %}
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col">SNo</th>
-          <th scope="col">Title</th>
-          <th scope="col">Description</th>
-          <th scope="col">Time</th>
-          <th scope="col">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for todo in allTodo %}
-        <tr>
-          <th scope="row">{{ loop.index }}</th>
-          <td>{{ todo.title }}</td>
-          <td>{{ todo.desc }}</td>
-          <td>{{ todo.date_created.strftime("%d %b %Y, %I:%M %p") }}</td>
-          <td>
-            <a href="/update/{{ todo.sno }}" class="btn btn-outline-dark btn-sm mx-1">Update</a>
-            <a href="/delete/{{ todo.sno }}" class="btn btn-outline-danger btn-sm mx-1">Delete</a>
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  {% endif %}
-</div>
-{% endblock body %}
+  </body>
+</html>
